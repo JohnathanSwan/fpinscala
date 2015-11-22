@@ -86,7 +86,7 @@ object List { // `List` companion object. Contains functions for creating and wo
 		case Cons(h,t) => reverse_recur(t,Cons(h,acc))
 	}
 	reverse_recur(init_recur(l, Nil), Nil)
-		
+
   }
 
   def length[A](l: List[A]): Int = foldRight(l, 0)((_,acc) => 1 + acc)
@@ -97,8 +97,8 @@ object List { // `List` companion object. Contains functions for creating and wo
 		l match {
 			case Nil => acc
 			case Cons(h,t) => recur(t, f, f(acc, h))
-                } 
-	recur(l, f, z)	
+                }
+	recur(l, f, z)
   }
   def leftSum(l: List[Int]):Int = foldLeft(l, 0)((acc, x) => acc + x)
   def leftProduct(l:List[Double]):Double = foldLeft(l, 1.0)((acc, x) => acc * x)
@@ -116,7 +116,96 @@ object List { // `List` companion object. Contains functions for creating and wo
 
   def leftFoldRight[A,B](l: List[A], z:B)(f: (A,B) => B) : B =
     foldLeft(foldLeft(l, Nil:List[A])((acc,x)=>Cons(x,acc)), z)((b:B,a:A) => f(a,b))
- 
+
   def reverseRight[A](l:List[A]):List[A] = foldRight(l, Nil:List[A])((x,acc) => rightAppend(acc, List(x)))
   def rightFoldLeft[A,B](l:List[A], z:B)(f:(B,A) => B) : B = foldRight(reverseRight(l),z)((a:A,b:B) => f(b,a))
+
+
+
+
+
+
+
+
+
+
+
+  // ex 3.21
+  def filterWithFlatMap[A,B](l: List[A])(f:A=>Boolean):List[A] = flatMap(l)((a) => if (f(a)) List(a) else Nil:List[A])
+
+
+
+
+
+
+
+
+
+
+
+  // ex 3.22
+  def sumPairs(l1:List[Int],l2:List[Int]):List[Int] = {
+    @annotation.tailrec
+    def recur(xs:List[Int],ys:List[Int],acc:List[Int]):List[Int] =
+      (xs,ys) match {
+        case (Nil, Nil) => acc
+        case (Nil, Cons(y,ys)) => recur(Nil, ys, Cons(y, acc))
+        case (Cons(x,xs), Nil) => recur(xs, Nil, Cons(x, acc))
+        case (Cons(x,xs),Cons(y,ys)) => recur(xs,ys,Cons(x+y,acc))
+      }
+    reverse(recur(l1,l2,Nil))
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+  // ex 3.23
+  def zipWith[A,B,C](as:List[A],bs:List[B])(f:(A,B)=>C) = {
+    @annotation.tailrec
+    def recur(as:List[A],bs:List[B],acc:List[C]):List[C] =
+      (as,bs) match {
+        case (Nil, Nil) => acc
+        case (Cons(a,as), Cons(b,bs)) => recur(as, bs, Cons(f(a,b),acc))
+        case _ => sys.error("mismatched list length")
+    }
+    reverse(recur(as,bs,Nil))
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // ex 3.24
+  def hasSubsequence[A](sup:List[A],sub:List[A]):Boolean = {
+    def prefix(sup:List[A],sub:List[A]):Boolean = (sup,sub) match {
+      case (Nil, Nil) => true
+      case (Cons(a,as), Nil) => true
+      case (Nil, Cons(a,as)) => false
+      case (Cons(a1,a1s), Cons(a2,a2s)) => if (a1 == a2) prefix(a1s,a2s) else false
+    }
+    (sup,sub) match {
+      case (Nil, Nil) => true
+      case (Cons(a,as), Nil) => true
+      case (Nil, Cons(a,as)) => false
+      case (Cons(a,as), sub) => if (prefix(Cons(a,as),sub)) true else hasSubsequence(as, sub)
+    }
+  }
 }
